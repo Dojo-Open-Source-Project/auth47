@@ -14,9 +14,10 @@
   "license": "AGPL-3.0-only",
   "homepage": "https://code.samourai.io/dojo/auth47-js",
   "dependencies": {
-    "bitcoinjs-lib": "5.1.4",
     "bip32": "2.0.6",
     "bip47-js": "git+https://code.samourai.io/dojo/bip47-js.git#develop",
+    "bitcoinjs-lib": "5.1.4",
+    "bitcoinjs-message": "1.0.1",
     "bs58check": "2.1.2"
   },
   "devDependencies": {
