@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const { URL } = require('url');
+const URL = (typeof window === 'undefined') ? require('url').URL : window.URL;
 const { SorobanURI } = require('./soroban');
 
 
@@ -149,6 +149,7 @@ class Auth47Parser {
     try {
       url = new URL(token);
     } catch (e) {
+      console.log(e);
       return null;
     }
     if (!(['http:', 'https:'].includes(url.protocol)))

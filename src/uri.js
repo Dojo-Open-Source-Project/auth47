@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const { URL } = require('url');
+const URL = (typeof window === 'undefined') ? require('url').URL : window.URL;
 const { Auth47Parser } = require('./parser');
 const { SorobanURI } = require('./soroban');
 

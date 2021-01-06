@@ -1,9 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const bitcoinjs = require('bitcoinjs-lib');
-const networks = bitcoinjs.networks;
-const btcMessage = require('bitcoinjs-message');
-const bip47 = require('bip47-js');
+const { networks } = require('bitcoinjs-lib');
+const { verify } = require('bitcoinjs-message');
+const { fromBase58 } = require('bip47-js');
 const { Auth47URI } = require('./uri');
 const { Auth47Challenge } = require('./challenge');
 
@@ -71,10 +70,10 @@ class Auth47Verifier {
           this._throwError('expired_proof');
       }
 
-      const pcode = bip47.fromBase58(proof['nym']);
+      const pcode = fromBase58(proof['nym']);
       const notifAddr = pcode.getNotificationAddress();
 
-      const isValidSig = btcMessage.verify(
+      const isValidSig = verify(
         proof['challenge'],
         network.messagePrefix,
         notifAddr,
