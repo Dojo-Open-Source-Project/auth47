@@ -1,6 +1,6 @@
 {
   "name": "auth47-js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A js implementation of the Auth47 protocol",
   "main": "src/index.js",
   "scripts": {
@@ -15,8 +15,7 @@
   "homepage": "https://code.samourai.io/dojo/auth47-js",
   "dependencies": {
     "bip32": "2.0.6",
-    "bip47-js": "git+https://code.samourai.io/dojo/bip47-js.git#0.1",
-    "bitcoinjs-lib": "5.1.4",
+    "bip47-js": "git+https://code.samourai.io/dojo/bip47-js.git#0.2",
     "bitcoinjs-message": "1.0.1",
     "bs58check": "2.1.2"
   },

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const { networks } = require('bitcoinjs-lib');
 const { verify } = require('bitcoinjs-message');
-const { fromBase58 } = require('bip47-js');
+const { fromBase58, utils } = require('bip47-js');
+const networks = utils.networks;
 const { Auth47URI } = require('./uri');
 const { Auth47Challenge } = require('./challenge');
 
