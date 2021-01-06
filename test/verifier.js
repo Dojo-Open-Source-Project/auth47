@@ -6,7 +6,7 @@ const { Auth47Verifier } = require('../src');
 const {
   VALID_AUTH47_PROOFS,
   INVALID_AUTH47_PROOFS
-} = require('./vectors');
+} = require('./test-vectors');
 
 
 describe('Auth47Verifier', function() {

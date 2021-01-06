@@ -8,7 +8,7 @@ const {
   INVALID_AUTH47_URIS,
   VALID_AUTH47_CHALLENGES,
   INVALID_AUTH47_CHALLENGES
-} = require('./vectors');
+} = require('./test-vectors');
 
 
 describe('Auth47Parser', function() {

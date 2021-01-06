@@ -6,7 +6,7 @@ const { Auth47Challenge } = require('../src');
 const {
   VALID_AUTH47_CHALLENGES,
   INVALID_AUTH47_CHALLENGES
-} = require('./vectors');
+} = require('./test-vectors');
 
 
 describe('Auth47Challenge', function() {
