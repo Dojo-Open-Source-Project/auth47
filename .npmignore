@@ -1,0 +1,10 @@
+src/
+test/
+examples/
+.vscode/
+.idea/
+.gitignore
+.eslintrc.json
+vitest.config.ts
+
+tsconfig*
