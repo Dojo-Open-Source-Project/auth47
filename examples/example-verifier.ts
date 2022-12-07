@@ -1,4 +1,5 @@
-import { Auth47Verifier } from '../src';
+import {Auth47Verifier} from '../src';
+import * as crypto from 'crypto';
 
 /**
  * A script simulating the operations ran by a Auth47 Verifier
@@ -11,9 +12,12 @@ import { Auth47Verifier } from '../src';
 const strCallbackUri = 'srbn://123aef4567890aef@samourai.onion';
 const verifier = new Auth47Verifier(strCallbackUri);
 
+// Generate random nonce
+const nonce = crypto.randomBytes(12).toString('hex');
+
 // Generate an Auth47URI for a given nonce
-const uri = verifier.generateURI({'nonce': 'aerezerzerze23131d'});
-console.log('URI generated:', uri.toString());
+const uri = verifier.generateURI({nonce: nonce});
+console.log('URI generated:', uri);
 
 // Here the verifier would send the URI to the Prover
 // The Prover would sign the challenge and
@@ -28,8 +32,10 @@ const proof_received = {
 };
 
 // Verify the proof (use bitcoin network defined as default)
-if (verifier.verifyProof(proof_received))
+const verifiedProof = verifier.verifyProof(proof_received);
+
+if (verifiedProof.result === 'ok')
     console.log('Proof is valid');
 else
-    console.log('Proof is not valid');
+    console.error(verifiedProof.error);
 

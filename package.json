@@ -1,6 +1,6 @@
 {
   "name": "@samouraiwallet/auth47",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A JS implementation of the Auth47 protocol",
   "keywords": [
     "bitcoin",
@@ -11,12 +11,16 @@
     "paynym"
   ],
   "type": "module",
+  "engines": {
+    "node": ">=16.x.x"
+  },
   "exports": {
     ".": "./dist/index.js"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "mocha",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
     "typescript": "tsc --noEmit",
     "lint": "eslint --ext .ts src/ test/",
     "build:clean": "rm -rf dist",
@@ -36,20 +40,23 @@
     "@samouraiwallet/bip47": "0.7.0",
     "bip32": "3.1.0",
     "bitcoinjs-message": "2.2.0",
-    "tiny-secp256k1": "2.2.1"
+    "fp-ts": "2.13.0",
+    "io-ts": "2.2.19",
+    "tiny-secp256k1": "2.2.1",
+    "validator": "13.7.0"
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.0",
-    "@types/node": "^16.11.64",
+    "@types/node": "^16.18.6",
     "@types/tiny-secp256k1": "^2.0.1",
-    "@typescript-eslint/eslint-plugin": "^5.40.0",
-    "@typescript-eslint/parser": "^5.40.0",
-    "eslint": "^8.25.0",
-    "eslint-import-resolver-typescript": "^3.5.1",
+    "@types/validator": "^13.7.10",
+    "@typescript-eslint/eslint-plugin": "^5.45.1",
+    "@typescript-eslint/parser": "^5.45.1",
+    "@vitest/coverage-c8": "^0.25.5",
+    "eslint": "^8.29.0",
+    "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-unicorn": "^44.0.2",
-    "mocha": "^10.1.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.8.4"
+    "eslint-plugin-unicorn": "^45.0.1",
+    "typescript": "^4.9.3",
+    "vitest": "^0.25.5"
   }
 }

@@ -1,34 +1,23 @@
-import assert from 'assert';
-import {Auth47Challenge} from '../src';
+import {describe, it, assert} from 'vitest';
+import {either} from 'fp-ts';
 import {
     VALID_AUTH47_CHALLENGES,
     INVALID_AUTH47_CHALLENGES
 } from './test-vectors.js';
-
+import {decodeChallenge} from '../src/custom-decoders';
 
 describe('Auth47Challenge', () => {
 
     describe('fromString()', () => {
         it('should successfully parse valid challenges', () => {
             for (const uri of VALID_AUTH47_CHALLENGES) {
-                assert.doesNotThrow(() => Auth47Challenge.fromString(uri));
+                assert.deepStrictEqual(decodeChallenge(uri), either.right(uri));
             }
         });
 
         it('should detect invalid challenges', () => {
             for (const uri of INVALID_AUTH47_CHALLENGES) {
-                assert.throws(() => {
-                    Auth47Challenge.fromString(uri);
-                });
-            }
-        });
-    });
-
-    describe('isValid()', () => {
-        it('should successfully identify valid challenges', () => {
-            for (const strUri of VALID_AUTH47_CHALLENGES) {
-                const challenge = Auth47Challenge.fromString(strUri);
-                assert.ok(challenge.isValid());
+                assert.deepStrictEqual(decodeChallenge(uri[0]), either.left(uri[1]));
             }
         });
     });
