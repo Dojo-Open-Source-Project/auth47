@@ -19,7 +19,8 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
     "coverage": "vitest run --coverage",
     "typescript": "tsc --noEmit",
     "lint": "eslint --ext .ts src/ test/",
@@ -32,6 +33,9 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@code.samourai.io:dojo/auth47-js.git"
+  },
+  "bugs": {
+    "url": "https://code.samourai.io/dojo/auth47-js/-/issues"
   },
   "author": "Katana Cryptographic Ltd.",
   "license": "LGPL-3.0",

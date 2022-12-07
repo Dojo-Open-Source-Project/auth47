@@ -1,5 +1,6 @@
 src/
 test/
+coverage/
 examples/
 .vscode/
 .idea/
@@ -8,3 +9,4 @@ examples/
 vitest.config.ts
 
 tsconfig*
+*.map
