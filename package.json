@@ -44,8 +44,8 @@
     "@samouraiwallet/bip47": "0.7.0",
     "bip32": "3.1.0",
     "bitcoinjs-message": "2.2.0",
-    "fp-ts": "2.13.0",
-    "io-ts": "2.2.19",
+    "fp-ts": "2.13.1",
+    "io-ts": "2.2.20",
     "tiny-secp256k1": "2.2.1",
     "validator": "13.7.0"
   },
@@ -60,7 +60,7 @@
     "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-unicorn": "^45.0.1",
-    "typescript": "^4.9.3",
+    "typescript": "^4.9.4",
     "vitest": "^0.25.5"
   }
 }
