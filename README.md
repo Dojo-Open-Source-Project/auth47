@@ -2,6 +2,9 @@
 
 A JS implementation of the Auth47 protocol.
 
+This library uses ES Modules. Node.js v14 or later is required.
+
+Source code was written in Typescript. Type definitions are included in the published bundle.
 
 ## Usage
 

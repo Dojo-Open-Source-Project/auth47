@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.0
+### Features
+- use string as input for bitcoin network instead of object
+
 ## v0.4.0
 ### Features
 - complete rewrite to Typescript

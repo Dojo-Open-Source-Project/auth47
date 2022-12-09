@@ -1,6 +1,6 @@
 {
   "name": "@samouraiwallet/auth47",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A JS implementation of the Auth47 protocol",
   "keywords": [
     "bitcoin",
@@ -12,7 +12,7 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=16.x.x"
+    "node": ">=14.x.x"
   },
   "exports": {
     ".": "./dist/index.js"
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@code.samourai.io:dojo/auth47-js.git"
+    "url": "https://code.samourai.io/dojo/auth47-js.git"
   },
   "bugs": {
     "url": "https://code.samourai.io/dojo/auth47-js/-/issues"
@@ -44,8 +44,8 @@
     "@samouraiwallet/bip47": "0.7.0",
     "bip32": "3.1.0",
     "bitcoinjs-message": "2.2.0",
-    "fp-ts": "2.13.0",
-    "io-ts": "2.2.19",
+    "fp-ts": "2.13.1",
+    "io-ts": "2.2.20",
     "tiny-secp256k1": "2.2.1",
     "validator": "13.7.0"
   },
@@ -60,7 +60,7 @@
     "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-unicorn": "^45.0.1",
-    "typescript": "^4.9.3",
+    "typescript": "^4.9.4",
     "vitest": "^0.25.5"
   }
 }
