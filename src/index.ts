@@ -33,6 +33,19 @@ type ErrorResult = {
 
 export type VerifyResult = OkResult | ErrorResult
 
+const getNetwork = (networkString: keyof typeof utils.networks): either.Either<string, Network> => {
+    switch (networkString) {
+        case 'bitcoin':
+            return either.right(networks.bitcoin);
+        case 'testnet':
+            return either.right(networks.testnet);
+        case 'regtest':
+            return either.right(networks.regtest);
+        default:
+            return either.left('Invalid bitcoin network');
+    }
+};
+
 export class Auth47Verifier {
     private callbackUri: string;
 
@@ -90,13 +103,13 @@ export class Auth47Verifier {
     /**
      * Verify a received Auth47 proof
      * @param {unknown} proof - signed Auth47 proof
-     * @param {Network} [network] - bitcoin network type object
+     * @param {'bitcoin' | 'testnet' | 'regtest'} networkString=bitcoin - bitcoin network type
      * @returns {({ result: 'ok', data: NymProofType | AddressProofType} | {result: 'error', error: string})} - Successful verification result or unsuccessful result with a message
      */
-    verifyProof(proof: unknown, network: Network = networks.bitcoin): VerifyResult {
+    verifyProof(proof: unknown, networkString: keyof typeof utils.networks = 'bitcoin'): VerifyResult {
         return pipe(
             decodeProof(proof),
-            either.chain(this.validateProof(network)),
+            either.chain(this.validateProof(networkString)),
             either.foldW(
                 (e) => ({result: 'error', error: e}),
                 (proofContainer) => ({result: 'ok', data: proofContainer.value})
@@ -104,17 +117,20 @@ export class Auth47Verifier {
         );
     }
 
-    private validateProof = (network: Network) => (proof: ProofContainer): either.Either<string, ValidProofContainer> => pipe(
-        isNymProof(proof) ? bip47.fromBase58(proof.value.nym, network).getNotificationAddress() : proof.value.address,
-        (notifAddress) => verify(
-            proof.value.challenge,
-            notifAddress,
-            proof.value.signature,
-            network.messagePrefix
-        ),
-        boolean.fold(
-            () => either.left('invalid signature'),
-            () => either.right(proof as ValidProofContainer)
-        )
+    private validateProof = (networkString: keyof typeof utils.networks) => (proof: ProofContainer): either.Either<string, ValidProofContainer> => pipe(
+        getNetwork(networkString),
+        either.chain((network) => pipe(
+            isNymProof(proof) ? bip47.fromBase58(proof.value.nym, network).getNotificationAddress() : proof.value.address,
+            (notifAddress) => verify(
+                proof.value.challenge,
+                notifAddress,
+                proof.value.signature,
+                network.messagePrefix
+            ),
+            boolean.fold(
+                () => either.left('invalid signature'),
+                () => either.right(proof as ValidProofContainer)
+            )
+        )),
     );
 }
