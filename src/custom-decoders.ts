@@ -1,10 +1,7 @@
+import {createRequire} from 'node:module';
 import {apply, either, io} from 'fp-ts';
-import * as G from 'io-ts/Guard';
-import {flow, pipe} from 'fp-ts/function';
-
-import isBase58 from 'validator/es/lib/isBase58';
-import isBase64 from 'validator/es/lib/isBase64';
-import isAlphaNumeric from 'validator/es/lib/isAlphanumeric';
+import type * as TG from 'io-ts/Guard';
+import type {pipe as Tpipe, flow as Tflow} from 'fp-ts/function';
 
 import {
     AddressProofContainer,
@@ -17,6 +14,12 @@ import {
     NymProofContainer, PaymentCode,
     ProofContainer
 } from './types.js';
+
+const require = createRequire(import.meta.url);
+const G: typeof TG = require('io-ts/Guard');
+const pipe: typeof Tpipe = require('fp-ts/function').pipe;
+const flow: typeof Tflow = require('fp-ts/function').flow;
+const {isBase58, isBase64, isAlphanumeric} = require('validator');
 
 const isBitcoinAddress = (address: string): boolean => {
     const mainnetRegex = /\b(bc(0([02-9ac-hj-np-z]{39}|[02-9ac-hj-np-z]{59})|1[02-9ac-hj-np-z]{8,87})|[13][1-9A-HJ-NP-Za-km-z]{25,35})\b/;
@@ -53,7 +56,7 @@ const decodeNonEmptyBase64String: CustomDecoder<unknown, NonEmptyBase64String> =
 
 const isBTCAddress = (str: unknown): str is BTCAddress => isNonEmptyString(str) && isBitcoinAddress(str);
 
-const isAlphaNumericString = (str: unknown): str is AlphaNumericString => G.string.is(str) && isAlphaNumeric(str);
+const isAlphaNumericString = (str: unknown): str is AlphaNumericString => G.string.is(str) && isAlphanumeric(str);
 
 const decodeAlphaNumericString: CustomDecoder<unknown, AlphaNumericString> = (str: unknown) => isAlphaNumericString(str) ? either.right(str) : either.left('expected alphanumeric string');
 
