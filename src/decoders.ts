@@ -1,7 +1,11 @@
-import {pipe} from 'fp-ts/function';
-import * as D from 'io-ts/Decoder';
+import {createRequire} from 'node:module';
+import type * as TD from 'io-ts/Decoder';
+import type {pipe as Tpipe} from 'fp-ts/function';
 
-import isAlphaNumeric from 'validator/es/lib/isAlphanumeric.js';
+const require = createRequire(import.meta.url);
+const D: typeof TD = require('io-ts/Decoder');
+const pipe: typeof Tpipe = require('fp-ts/function').pipe;
+const {isAlphanumeric} = require('validator');
 
 interface NonEmptyStringBrand {
     readonly NonEmptyString: unique symbol;
@@ -9,7 +13,7 @@ interface NonEmptyStringBrand {
 
 export type NonEmptyString = string & NonEmptyStringBrand;
 
-export const NonEmptyString: D.Decoder<unknown, NonEmptyString> = pipe(
+export const NonEmptyString: TD.Decoder<unknown, NonEmptyString> = pipe(
     D.string,
     D.refine((s): s is NonEmptyString => s.trim().length > 0, 'non-empty string')
 );
@@ -20,12 +24,12 @@ interface AlphaNumericStringBrand {
 
 export type AlphaNumericString = string & AlphaNumericStringBrand;
 
-export const AlphaNumericString: D.Decoder<unknown, AlphaNumericString> = pipe(
+export const AlphaNumericString: TD.Decoder<unknown, AlphaNumericString> = pipe(
     D.string,
-    D.refine((s): s is AlphaNumericString => isAlphaNumeric(s), 'alphanumeric string')
+    D.refine((s): s is AlphaNumericString => isAlphanumeric(s), 'alphanumeric string')
 );
 
-export const NumberFromDate: D.Decoder<unknown, number> = ({
+export const NumberFromDate: TD.Decoder<unknown, number> = ({
     decode: (d) => d instanceof Date ? D.success(Math.floor(d.getTime() / 1000)) : D.failure(d, 'Date object')
 });
 

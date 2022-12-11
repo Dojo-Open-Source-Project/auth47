@@ -1,13 +1,18 @@
+import {createRequire} from 'node:module';
 import {boolean, either} from 'fp-ts';
-import {pipe} from 'fp-ts/function';
-import * as D from 'io-ts/Decoder';
 import {utils, BIP47Factory} from '@samouraiwallet/bip47';
 import {verify} from 'bitcoinjs-message';
 import * as ecc from 'tiny-secp256k1';
+import type * as TD from 'io-ts/Decoder';
+import type {pipe as Tpipe} from 'fp-ts/function';
 
 import {GenerateURIArgsDecoder} from './decoders.js';
 import {decodeProof, isNymProof} from './custom-decoders.js';
 import {ProofContainer, ValidProofContainer} from './types.js';
+
+const require = createRequire(import.meta.url);
+const D: typeof TD = require('io-ts/Decoder');
+const pipe: typeof Tpipe = require('fp-ts/function').pipe;
 
 const networks = utils.networks;
 

@@ -101,15 +101,15 @@ export const VALID_AUTH47_PROOFS = [
     },
     {
         'auth47_response': '1.0',
-        'challenge': 'auth47://b467136609ad51c37105e2d3?r=http://37.143.131.230:8095&e=1670716800',
+        'challenge': 'auth47://b467136609ad51c37105e2d3?r=https://samourai.io/&e=1770716800',
         'nym': 'PM8TJcJxC23rSYYcop8tbmLHA1BbjpaRGDuyvoZDhneoEqqh6tZ1FMwnaW8UyYbYh3XNRzRzqcd1Nt4aYzfpJn72UadKPJ7kBh8VjbjTxCvqHTweNLwV',
-        'signature': 'IChLIrib5c864y8UOB9vWlFvU5jGRAsvyVdJOsSZn7dRQXAbnY/d/0CUKiV9RitdXadySuG+NdxzfvEgxmwDBt4=',
+        'signature': 'IBhs5gXxr+efivpahmifWGZx+s/3ffqQhjPIJk/uU8B+a8v07fPBB+hDOvxpQ4xc3mARo8T/PTzH1LgPkU97QDA=',
     },
     {
         'auth47_response': '1.0',
-        'challenge': 'auth47://b467136609ad51c37105e2d3?r=http://37.143.131.230:8095',
-        'address': '1C8tWg58TkbpefZjfHqiytAu45aefAvTEv',
-        'signature': 'IH+jidKULo1buU67eMK4EY+B4xsXZP1FQFO0PiaaOT/PQylLVk/EYmIPAuy8cyhEvp3Kzyt5oaX4qTq8gBUSrLA=',
+        'challenge': 'auth47://a46713660ahst4547105e2d3?r=https://samourai.io/',
+        'address': 'mtFbzv3fxDEqudUFuWbz2QDBC2MyC1MLPu',
+        'signature': 'ILdxZ9HS1CL1L03am5yDd/IXATGYYCDwweBA0mZe+7ctV+9u8smHTq+7uS4y7gXu0qGIi85TW9S0tndY3qm21gM=',
     }
 ];
 

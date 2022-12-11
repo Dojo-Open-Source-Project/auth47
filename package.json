@@ -1,6 +1,6 @@
 {
   "name": "@samouraiwallet/auth47",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A JS implementation of the Auth47 protocol",
   "keywords": [
     "bitcoin",
