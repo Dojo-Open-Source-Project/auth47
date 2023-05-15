@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.0
+### Features
+- updated dependencies
+
 ## v0.5.1
 ### Bugfixes
 - fixed broken ESM imports
