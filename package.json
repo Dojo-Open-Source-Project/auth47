@@ -1,6 +1,6 @@
 {
   "name": "@samouraiwallet/auth47",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "description": "A JS implementation of the Auth47 protocol",
   "keywords": [
     "bitcoin",
@@ -12,12 +12,14 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=14.x.x"
+    "node": ">=20.x.x"
   },
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
-  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch",
@@ -27,40 +29,36 @@
     "build:clean": "rm -rf dist",
     "build:esm": "tsc -p tsconfig.build.json",
     "build": "npm run build:clean && npm run build:esm",
-    "prepack": "npm run lint && npm run typescript && npm run test",
-    "prepare": "npm run build"
+    "prepack": "npm run lint && npm run typescript && npm run test && npm run build"
   },
   "repository": {
     "type": "git",
-    "url": "https://code.samourai.io/dojo/auth47-js.git"
+    "url": "https://github.com/Dojo-Open-Source-Project/auth47.git"
   },
   "bugs": {
-    "url": "https://code.samourai.io/dojo/auth47-js/-/issues"
+    "url": "https://github.com/Dojo-Open-Source-Project/auth47/issues"
   },
   "author": "Katana Cryptographic Ltd.",
   "license": "LGPL-3.0",
-  "homepage": "https://code.samourai.io/dojo/auth47-js",
+  "homepage": "https://github.com/Dojo-Open-Source-Project/auth47",
   "dependencies": {
-    "@samouraiwallet/bip47": "0.8.0",
-    "bip32": "4.0.0",
-    "bitcoinjs-message": "2.2.0",
-    "fp-ts": "2.15.0",
-    "io-ts": "2.2.20",
-    "tiny-secp256k1": "2.2.1",
-    "validator": "13.9.0"
+    "@effect/schema": "^0.72.0",
+    "@samouraiwallet/bip47": "1.0.0",
+    "@samouraiwallet/bitcoinjs-message": "3.0.0",
+    "effect": "3.7.0",
+    "fast-check": "^3.22.0"
   },
   "devDependencies": {
-    "@types/node": "^16.18.30",
-    "@types/tiny-secp256k1": "^2.0.1",
-    "@types/validator": "^13.7.17",
-    "@typescript-eslint/eslint-plugin": "^5.59.6",
-    "@typescript-eslint/parser": "^5.59.6",
-    "@vitest/coverage-c8": "^0.31.0",
-    "eslint": "^8.40.0",
-    "eslint-import-resolver-typescript": "^3.5.5",
+    "@types/node": "^20.16.3",
+    "@typescript-eslint/eslint-plugin": "^8.4.0",
+    "@typescript-eslint/parser": "^8.4.0",
+    "@vitest/coverage-v8": "^2.0.5",
+    "eslint": "^8.57.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-unicorn": "^47.0.0",
-    "typescript": "^5.0.4",
-    "vitest": "^0.31.0"
+    "eslint-plugin-unicorn": "^55.0.0",
+    "tiny-secp256k1": "^2.2.3",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   }
 }

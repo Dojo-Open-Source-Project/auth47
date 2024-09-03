@@ -1,34 +1,21 @@
-import {createRequire} from 'node:module';
-import {boolean, either} from 'fp-ts';
-import {utils, BIP47Factory} from '@samouraiwallet/bip47';
-import {verify} from 'bitcoinjs-message';
-import * as ecc from 'tiny-secp256k1';
-import type * as TD from 'io-ts/Decoder';
-import type {pipe as Tpipe} from 'fp-ts/function';
+import {BIP47Factory, TinySecp256k1Interface} from '@samouraiwallet/bip47';
+import * as utils from '@samouraiwallet/bip47/utils';
+import {bitcoinMessageFactory} from '@samouraiwallet/bitcoinjs-message';
+import {pipe, Either, Boolean} from 'effect';
+import * as S from '@effect/schema/Schema';
+import {ArrayFormatter} from '@effect/schema';
 
-import {GenerateURIArgsDecoder} from './decoders.js';
-import {decodeProof, isNymProof} from './custom-decoders.js';
-import {ProofContainer, ValidProofContainer} from './types.js';
-
-const require = createRequire(import.meta.url);
-const D: typeof TD = require('io-ts/Decoder');
-const pipe: typeof Tpipe = require('fp-ts/function').pipe;
+import {CallbackUri, GenerateURIArgs, GenerateURIArgsInput, Proof, ValidCallbackUri} from './decoders.js';
 
 const networks = utils.networks;
 
+type TinySecp256k1InterfaceJoined = TinySecp256k1Interface & Parameters<typeof bitcoinMessageFactory>[0]
+
 type Network = typeof networks.bitcoin;
-
-const bip47 = BIP47Factory(ecc);
-
-interface GenerateURIArgs {
-    nonce: string;
-    resource?: string;
-    expires?: number | Date;
-}
 
 type OkResult = {
     result: 'ok',
-    data: ValidProofContainer['value']
+    data: typeof Proof.Type
 }
 
 type ErrorResult = {
@@ -38,70 +25,66 @@ type ErrorResult = {
 
 export type VerifyResult = OkResult | ErrorResult
 
-const getNetwork = (networkString: keyof typeof utils.networks): either.Either<string, Network> => {
+const getNetwork = (networkString: keyof typeof utils.networks): Either.Either<Network, string> => {
     switch (networkString) {
         case 'bitcoin':
-            return either.right(networks.bitcoin);
+            return Either.right(networks.bitcoin);
         case 'testnet':
-            return either.right(networks.testnet);
+            return Either.right(networks.testnet);
         case 'regtest':
-            return either.right(networks.regtest);
+            return Either.right(networks.regtest);
         default:
-            return either.left('Invalid bitcoin network');
+            return Either.left('Invalid bitcoin network');
     }
 };
 
 export class Auth47Verifier {
-    private callbackUri: string;
+    private readonly bip47: ReturnType<typeof BIP47Factory>;
+    private readonly bitcoinjsMessage: ReturnType<typeof bitcoinMessageFactory>;
+    private readonly callbackUri: ValidCallbackUri;
 
-    constructor(callbackUri: string) {
-        const validatedUri = pipe(
-            D.string.decode(callbackUri),
-            either.mapLeft(D.draw),
-            either.chain((s) => pipe(
-                either.tryCatch(() => new URL(s), () => 'invalid URL'),
-                either.chain((url) =>
-                    ['http:', 'https:', 'srbn:', 'srbns:'].includes(url.protocol) ? either.right(url) : either.left('invalid protocol for callback URI')
-                ),
-                either.chain((url) => url.hash === '' ? either.right(url) : either.left('hash is forbidden in callback URI')),
-                either.chain((url) => url.search === '' ? either.right(url) : either.left('search params are forbidden in callback URI'))
-            )),
-            either.getOrElseW((e) => {
-                throw new Error(e);
+    /**
+     * @constructor
+     * @param ecc {TinySecp256k1InterfaceJoined} - secp256k1 elliptic curve implementation
+     * @param callbackUri {string} - callback URI
+     * @throws {Error} - throws Error on invalid callback URI
+     */
+    constructor(ecc: TinySecp256k1InterfaceJoined, callbackUri: string) {
+        this.bip47 = BIP47Factory(ecc);
+        this.bitcoinjsMessage = bitcoinMessageFactory(ecc);
+        this.callbackUri = S.decodeUnknownEither(CallbackUri)(callbackUri).pipe(
+            Either.mapLeft(ArrayFormatter.formatErrorSync),
+            Either.mapLeft((e) => e[0].message as string),
+            Either.match({
+                onLeft: (e) => { throw e; },
+                onRight: (uri) => uri
             })
         );
-
-        this.callbackUri = decodeURIComponent(validatedUri.toString());
     }
 
     /**
      * Generate an Auth47URI
-     * @param {GenerateURIArgs} args
+     * @param {GenerateURIArgsInput} args
      * @param {string} args.nonce - secure random alphanumeric nonce
      * @param {string} [args.resource] - resource URI
      * @param {number | Date} [args.expires] - expiry (UTC) as a UNIX timestamp or Date object
      * @throws {Error} - throws Error on invalid args
      * @returns {string}
      */
-    generateURI(args: GenerateURIArgs): string {
+    generateURI(args: GenerateURIArgsInput): string {
         return pipe(
             args,
-            GenerateURIArgsDecoder.decode,
-            either.fold(
-                (e) => {
-                    throw new Error(D.draw(e));
-                },
-                (decoded) => {
-                    const uri = new URL(`auth47://${decoded.nonce}`);
+            S.decodeUnknownSync(GenerateURIArgs),
+            (decoded) => {
+                const uri = new URL(`auth47://${decoded.nonce}`);
 
-                    uri.searchParams.set('c', this.callbackUri);
+                uri.searchParams.set('c', this.callbackUri);
 
-                    if (decoded.expires) uri.searchParams.set('e', decoded.expires.toString(10));
-                    if (decoded.resource) uri.searchParams.set('r', decoded.resource);
+                if (decoded.expires) uri.searchParams.set('e', decoded.expires.toString(10));
+                if (decoded.resource) uri.searchParams.set('r', decoded.resource);
 
-                    return decodeURIComponent(uri.toString());
-                }
-            ),
+                return decodeURIComponent(uri.toString());
+            }
         );
     }
 
@@ -109,32 +92,36 @@ export class Auth47Verifier {
      * Verify a received Auth47 proof
      * @param {unknown} proof - signed Auth47 proof
      * @param {'bitcoin' | 'testnet' | 'regtest'} networkString=bitcoin - bitcoin network type
-     * @returns {({ result: 'ok', data: NymProofType | AddressProofType} | {result: 'error', error: string})} - Successful verification result or unsuccessful result with a message
+     * @returns {({ result: 'ok', typeof Proof.Type} | {result: 'error', error: string})} - Successful verification result or unsuccessful result with a message
      */
     verifyProof(proof: unknown, networkString: keyof typeof utils.networks = 'bitcoin'): VerifyResult {
         return pipe(
-            decodeProof(proof),
-            either.chain(this.validateProof(networkString)),
-            either.foldW(
-                (e) => ({result: 'error', error: e}),
-                (proofContainer) => ({result: 'ok', data: proofContainer.value})
+            S.decodeUnknownEither(Proof)(proof),
+            Either.mapLeft(ArrayFormatter.formatErrorSync),
+            Either.mapLeft((e) => e[0].message as string),
+            Either.flatMap(this.validateProof(networkString)),
+            Either.match({
+                onLeft: (e) => ({result: 'error', error: e}),
+                onRight: (proof) => ({result: 'ok', data: proof})}
             )
         );
     }
 
-    private validateProof = (networkString: keyof typeof utils.networks) => (proof: ProofContainer): either.Either<string, ValidProofContainer> => pipe(
+    private validateProof = (networkString: keyof typeof utils.networks) => (proof: typeof Proof.Type): Either.Either<typeof Proof.Type, string> => pipe(
         getNetwork(networkString),
-        either.chain((network) => pipe(
-            isNymProof(proof) ? bip47.fromBase58(proof.value.nym, network).getNotificationAddress() : proof.value.address,
-            (notifAddress) => verify(
-                proof.value.challenge,
+        Either.flatMap((network) => pipe(
+            proof.kind === 'NymProof'
+                ? this.bip47.fromBase58(proof.nym, network).getNotificationAddress()
+                : proof.address,
+            (notifAddress) => this.bitcoinjsMessage.verify(
+                proof.challenge,
                 notifAddress,
-                proof.value.signature,
+                proof.signature,
                 network.messagePrefix
             ),
-            boolean.fold(
-                () => either.left('invalid signature'),
-                () => either.right(proof as ValidProofContainer)
+            Boolean.match({
+                onFalse: () => Either.left('invalid signature'),
+                onTrue: () => Either.right(proof)}
             )
         )),
     );

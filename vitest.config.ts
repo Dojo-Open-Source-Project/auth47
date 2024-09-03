@@ -6,7 +6,7 @@ export default defineConfig({
         include: ['./test/**/*.test.ts'],
         exclude: ['./test/test-vectors.ts'],
         coverage: {
-            provider: 'c8'
+            provider: 'v8'
         }
     },
 });
