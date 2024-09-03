@@ -1,5 +1,7 @@
-import {Auth47Verifier} from '../src';
+import {Auth47Verifier} from '../src/index.js';
 import * as crypto from 'crypto';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import * as ecc from 'tiny-secp256k1';
 
 /**
  * A script simulating the operations ran by a Auth47 Verifier
@@ -10,7 +12,7 @@ import * as crypto from 'crypto';
 
 // Initialize an Auth47Verifier for a Verifier using a soroban channel as its callback URI
 const strCallbackUri = 'srbn://123aef4567890aef@samourai.onion';
-const verifier = new Auth47Verifier(strCallbackUri);
+const verifier = new Auth47Verifier(ecc, strCallbackUri);
 
 // Generate random nonce
 const nonce = crypto.randomBytes(12).toString('hex');

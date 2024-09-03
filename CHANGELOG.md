@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.0
+- library no longer depends on Node.js internals
+- code rewritten to use `@effect/schema`
+- updated dependencies
+
 ## v0.6.0
 ### Features
 - updated dependencies
