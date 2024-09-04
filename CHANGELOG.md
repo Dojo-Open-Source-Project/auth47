@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.0.1
+- fix dependency pinning
+
 ## v1.0.0
 - library no longer depends on Node.js internals
 - code rewritten to use `@effect/schema`
