@@ -1,6 +1,6 @@
 {
   "name": "@samouraiwallet/auth47",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A JS implementation of the Auth47 protocol",
   "keywords": [
     "bitcoin",
@@ -43,9 +43,9 @@
   "homepage": "https://github.com/Dojo-Open-Source-Project/auth47",
   "dependencies": {
     "@effect/schema": "^0.72.0",
-    "@samouraiwallet/bip47": "1.0.0",
-    "@samouraiwallet/bitcoinjs-message": "3.0.0",
-    "effect": "3.7.0",
+    "@samouraiwallet/bip47": "^1.0.0",
+    "@samouraiwallet/bitcoinjs-message": "^3.0.0",
+    "effect": "^3.7.0",
     "fast-check": "^3.22.0"
   },
   "devDependencies": {

@@ -12,13 +12,13 @@ importers:
         specifier: ^0.72.0
         version: 0.72.0(effect@3.7.0)
       '@samouraiwallet/bip47':
-        specifier: 1.0.0
+        specifier: ^1.0.0
         version: 1.0.0
       '@samouraiwallet/bitcoinjs-message':
-        specifier: 3.0.0
+        specifier: ^3.0.0
         version: 3.0.0
       effect:
-        specifier: 3.7.0
+        specifier: ^3.7.0
         version: 3.7.0
       fast-check:
         specifier: ^3.22.0
