@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.0
+- refactor (removed Effect)
+- updated dependencies
+
 ## v1.0.1
 - fix dependency pinning
 
