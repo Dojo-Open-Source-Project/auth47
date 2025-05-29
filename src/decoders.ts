@@ -1,211 +1,230 @@
-import {Effect, pipe} from 'effect';
-import * as S from '@effect/schema/Schema';
-import * as PR from '@effect/schema/ParseResult';
-import {ArrayFormatter} from '@effect/schema';
+export class Auth47Error extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'Auth47Error';
+    }
+}
 
+const alphanumericRegex = /^[\da-z]+$/i;
 const base58Regex = /^[1-9A-HJ-NP-Za-km-z]*$/;
 const base64Regex = /(?:[\d+/A-Za-z]{4})*(?:[\d+/A-Za-z]{2}==|[\d+/A-Za-z]{3}=|[\d+/A-Za-z]{4})/;
+const bitcoinAddressMainnetRegex = /\b(bc(0([02-9ac-hj-np-z]{39}|[02-9ac-hj-np-z]{59})|1[02-9ac-hj-np-z]{8,87})|[13][1-9A-HJ-NP-Za-km-z]{25,35})\b/;
+const bitcoinAddressTestnetRegex = /\b(tb(0([02-9ac-hj-np-z]{39}|[02-9ac-hj-np-z]{59})|1[02-9ac-hj-np-z]{8,87})|[2mn][1-9A-HJ-NP-Za-km-z]{25,39})\b/;
 
-export const NumberFromDate = S.transform(
-    S.DateFromSelf,
-    S.Number,
-    {
-        decode: (d) => Math.floor(d.getTime() / 1000),
-        encode: (n) => new Date(n * 1000)
+export function createCallbackUri(callbackUri: string | URL) {
+    const url = new URL(callbackUri);
+
+    if (!['http:', 'https:', 'srbn:', 'srbns:'].includes(url.protocol)) {
+        throw new Auth47Error('invalid protocol for callback URI');
     }
-).pipe(
-    S.nonNaN(),
-    S.annotations({message: () => ({ message: 'expected a valid Date', override: true}) })
-);
 
-export const NonEmptyString = S.String.pipe(
-    S.compose(S.Trim),
-    S.minLength(1),
-    S.annotations({message: () => ({message: 'expected a non-empty string', override:true}) })
-);
-
-export const AlphaNumericString = NonEmptyString.pipe(
-    S.pattern(/^[\da-z]+$/i),
-    S.annotations({message: () => ({message: 'expected alphanumeric string', override: true}) })
-);
-
-const BitcoinMainnetAddress = S.String.pipe(
-    S.pattern(/\b(bc(0([02-9ac-hj-np-z]{39}|[02-9ac-hj-np-z]{59})|1[02-9ac-hj-np-z]{8,87})|[13][1-9A-HJ-NP-Za-km-z]{25,35})\b/),
-);
-const BitcoinTestnetAddress = S.String.pipe(
-    S.pattern(/\b(tb(0([02-9ac-hj-np-z]{39}|[02-9ac-hj-np-z]{59})|1[02-9ac-hj-np-z]{8,87})|[2mn][1-9A-HJ-NP-Za-km-z]{25,39})\b/),
-);
-export const BitcoinAddress = S.Union(BitcoinMainnetAddress, BitcoinTestnetAddress).pipe(
-    S.annotations({message: () => ({message: 'expected a valid Bitcoin address', override: true}) })
-);
-
-export const IntFromString = S.NumberFromString.pipe(
-    S.int(),
-    S.annotations({ message: () => ({message:'expected an integer value', override: true})}),
-);
-
-export const FutureDateNumber = S.Union(S.Number.pipe(S.nonNaN()), NumberFromDate).pipe(
-    S.filter((n) => n * 1000 > Date.now(), {identifier: 'FutureDateNumber', message: () => ({message: 'expected a future date', override: true})})
-);
-
-export const GenerateURIArgs = S.Struct({
-    nonce: AlphaNumericString,
-    resource: S.optional(NonEmptyString),
-    expires: S.optional(FutureDateNumber)
-});
-
-export type GenerateURIArgsInput = S.Schema.Encoded<typeof GenerateURIArgs>;
-
-export const Signature = NonEmptyString.pipe(
-    S.pattern(base64Regex),
-    S.annotations({message:() => ({message:'expected a valid signature', override: true})}),
-);
-
-export const Nym = NonEmptyString.pipe(
-    S.pattern(base58Regex),
-    S.startsWith('P'),
-    S.length(116),
-    S.annotations({message: () => ({message: 'expected a valid Payment code', override: true})}),
-);
-
-const ValidCallbackUri = S.String.pipe(S.brand('ValidCallbackUri'));
-
-export type ValidCallbackUri = typeof ValidCallbackUri.Type
-
-export const CallbackUri = S.transformOrFail(
-    S.String,
-    ValidCallbackUri,
-    {
-        strict: true,
-        decode: (s,_, ast) => pipe(
-            Effect.try({
-                try: () => new URL(s),
-                catch: () => new PR.Type(ast, s,'invalid URL')
-            }),
-            Effect.flatMap((url) => ['http:', 'https:', 'srbn:', 'srbns:'].includes(url.protocol)
-                ? Effect.succeed(url)
-                : Effect.fail(new PR.Type(ast, s,'invalid protocol for callback URI'))),
-            Effect.flatMap((url) => url.hash === '' ? Effect.succeed(url) : Effect.fail(new PR.Type(ast, s,'hash is forbidden in callback URI'))),
-            Effect.flatMap((url) => url.search === '' ? Effect.succeed(url) : Effect.fail(new PR.Type(ast, s,'search params are forbidden in callback URI'))),
-            Effect.map(() => new URL(s).toString() as ValidCallbackUri)
-        ),
-        encode: PR.succeed,
+    if (url.hash !== '') {
+        throw new Auth47Error('hash is forbidden in callback URI');
     }
-);
 
-export const Resource = pipe(
-    S.transformOrFail(
-        S.String,
-        S.String,
-        {
-            strict: true,
-            decode: (s,_,ast) => pipe(
-                Effect.if(s === 'srbn', {
-                    onTrue: () => Effect.succeed(s),
-                    onFalse: () => pipe(
-                        Effect.try({
-                            try: () => new URL(s),
-                            catch: () => new PR.Type(ast, s,'invalid challenge: expected "srbn" or a valid resource URL')
-                        }),
-                        Effect.flatMap((url) => url.protocol === 'http:' || url.protocol === 'https:'
-                            ? Effect.succeed(url)
-                            : Effect.fail(new PR.Type(ast, s,'invalid challenge: expected a valid HTTP(S) protocol'))),
-                        Effect.flatMap((url) => url.search === '' ? Effect.succeed(url) : Effect.fail(new PR.Type(ast, s,'invalid challenge: expected empty search param'))),
-                        Effect.map(() => s)
-                    )
-                })
-            ),
-            encode: PR.succeed
-        },
-    )
-);
+    if (url.search !== '') {
+        throw new Auth47Error('search params are forbidden in callback URI');
+    }
 
-export const Expiry =
-    S.transformOrFail(
-        S.NumberFromString.annotations({message: () => ({message: 'invalid challenge: expiry: expected a numeric string', override: true})}),
-        S.Int,
-        {
-            strict: true,
-            decode: (n, _, ast) => (new Date(n * 1000)).getTime() > Date.now()
-                ? PR.succeed(n)
-                : PR.fail(new PR.Type(ast, n, 'invalid challenge: expired proof')),
-            encode: PR.succeed
+    return url.toString();
+}
+
+export type GenerateURIArgs = {
+    nonce: string,
+    resource?: string | undefined,
+    expires?: number | Date | undefined
+}
+
+export function validateGenerateUriArgs(args: GenerateURIArgs): asserts args is GenerateURIArgs {
+    if (typeof args !== 'object' || args === null) {
+        throw new Auth47Error('Invalid generate URI args');
+    }
+
+    if (!('nonce' in args)) {
+        throw new Auth47Error('"nonce": missing');
+    }    if (!alphanumericRegex.test(args.nonce)) {
+        throw new Auth47Error('"nonce": invalid, expected alphanumeric string');
+    }
+
+    if (args.resource != null && (typeof args.resource !== 'string' || args.resource.length === 0)) {
+        throw new Auth47Error('"resource": invalid, expected string');
+    }
+
+    if (args.expires) {
+        if (typeof args.expires === 'number') {
+            if (args.expires * 1000 < Date.now()) {
+                throw new Auth47Error('"expires": invalid, expected future date');
+            }
+        } else if (args.expires instanceof Date) {
+            args.expires = Math.floor(args.expires.getTime() / 1000);
+            if (args.expires * 1000 < Date.now()) {
+                throw new Auth47Error('"expires": invalid, expected future date');
+            }
+        } else {
+            throw new Auth47Error('"expires": invalid, expected number or Date');
         }
-    );
-
-export const Challenge = S.transformOrFail(
-    S.String,
-    S.String,
-    {
-        strict: true,
-        decode: (s,_, ast) => Effect.gen(function*() {
-            const url = yield* Effect.try({
-                try: () => new URL(s),
-                catch: () => new PR.Type(ast, s,'invalid challenge: expected a valid URL')
-            });
-
-            if (url.protocol !== 'auth47:') {
-                yield* Effect.fail(new PR.Type(ast, s,'invalid challenge: invalid protocol, expected "auth47"'));
-            }
-
-            if (!S.is(AlphaNumericString)(url.hostname)) {
-                yield* Effect.fail(new PR.Type(ast, s,'invalid challenge: invalid nonce'));
-            }
-
-            if (url.hash !== '') {
-                yield* Effect.fail(new PR.Type(ast, s,'invalid challenge: expected hash to be empty'));
-            }
-
-            const obj = Object.fromEntries(url.searchParams.entries());
-
-            if (obj.r === undefined) {
-                yield* Effect.fail(new PR.Type(ast, s,'invalid challenge: missing resource'));
-            }
-
-            yield* S.decodeUnknown(Resource)(obj.r).pipe(
-                Effect.mapError(ArrayFormatter.formatErrorSync),
-                Effect.mapError((e) => e[0].message as string),
-                Effect.mapError((e) => new PR.Type(ast, s, e))
-            );
-
-            if (obj.e !== undefined) {
-                yield* S.decodeUnknown(Expiry)(obj.e).pipe(
-                    Effect.mapError(ArrayFormatter.formatErrorSync),
-                    Effect.mapError((e) => e[0].message as string),
-                    Effect.mapError((e) => new PR.Type(ast, s, e))
-                );
-            }
-
-            if (obj.c !== undefined) {
-                yield* Effect.fail(new PR.Type(ast, s,'invalid challenge: expected empty search param'));
-            }
-
-            return s;
-        }),
-        encode: PR.succeed
     }
-);
+}
 
-const BaseProof = S.Struct({
-    auth47_response: S.Literal('1.0').annotations({message: (issue) => ({message: `"auth47_response": received ${issue.actual}, expected 1.0`, override: true})}),
-    challenge: Challenge,
-    signature: Signature
-});
+function validateBitcoinAddress(address: unknown) {
+    if (typeof address !== 'string') {
+        throw new Auth47Error('"address": invalid, expected string');
+    }
 
-export const AddressProof = S.Struct({
-    ...BaseProof.fields,
-    address: BitcoinAddress
-});
+    if (!bitcoinAddressMainnetRegex.test(address) && !bitcoinAddressTestnetRegex.test(address)) {
+        throw new Auth47Error('"address": invalid, expected valid Bitcoin address');
+    }
+}
 
+function validateNym(nym: unknown) {
+    if (typeof nym !== 'string') {
+        throw new Auth47Error('"nym": invalid, expected string');
+    }
 
-export const NymProof = S.Struct({
-    ...BaseProof.fields,
-    nym: Nym
-});
+    if (!base58Regex.test(nym)) {
+        throw new Auth47Error('"nym": invalid, expected valid Payment code');
+    }
 
+    if (nym.length !== 116) {
+        throw new Auth47Error('"nym": invalid, expected valid Payment code');
+    }
 
-export const Proof = S.Union(
-    AddressProof.pipe(S.attachPropertySignature('kind', 'AddressProof')),
-    NymProof.pipe(S.attachPropertySignature('kind', 'NymProof')),
-);
+    if (!nym.startsWith('P')) {
+        throw new Auth47Error('"nym": invalid, expected valid Payment code');
+    }
+}
 
+function validateResource(resource: unknown){
+    if (typeof resource !== 'string') {
+        throw new Auth47Error('"challenge": invalid resource');
+    }
+
+    if (resource === 'srbn') return;
+
+    const url = URL.parse(resource);
+
+    if (!url) {
+        throw new Auth47Error('"challenge": invalid resource');
+    }
+
+    if ((url.protocol !== 'http:' && url.protocol !== 'https:') || url.search !== '') {
+        throw new Auth47Error('"challenge": invalid resource');
+    }
+}
+
+function validateExpiry(expiry: unknown){
+    if (typeof expiry !== 'string') {
+        throw new Auth47Error('"challenge": invalid expiry');
+    }
+
+    const expiryNumber = Number.parseInt(expiry, 10);
+
+    if (Number.isNaN(expiryNumber)) {
+        throw new Auth47Error('"challenge": invalid expiry');
+    }
+
+    if ((new Date(expiryNumber * 1000)).getTime() < Date.now()) {
+        throw new Auth47Error('"challenge": expired proof');
+    }
+}
+
+export function validateChallenge(challenge: unknown) {
+    if (typeof challenge !== 'string') {
+        throw new Auth47Error('"challenge": invalid, expected string');
+    }
+
+    const url = URL.parse(challenge);
+
+    if (!url) {
+        throw new Auth47Error('"challenge": invalid URL');
+    }
+
+    if (url.protocol !== 'auth47:') {
+        throw new Auth47Error('"challenge": invalid protocol');
+    }
+
+    if (!alphanumericRegex.test(url.hostname)) {
+        throw new Auth47Error('"challenge": invalid nonce');
+    }
+
+    if (url.hash !== '') {
+        throw new Auth47Error('"challenge": invalid hash');
+    }
+
+    const params = Object.fromEntries(url.searchParams.entries());
+
+    if (params.r === undefined) {
+        throw new Auth47Error('"challenge": missing resource');
+    }
+
+    validateResource(params.r);
+    if (params.e !== undefined) {
+        validateExpiry(params.e);
+    }
+
+    if (params.c !== undefined) {
+        throw new Auth47Error('"challenge": invalid param "c');
+    }
+}
+
+function validateSignature(signature: unknown) {
+    if (!(typeof signature === 'string' && signature.length > 0)) {
+        throw new Auth47Error('"signature": invalid, expected string');
+    }
+
+    if (!base64Regex.test(signature)) {
+        throw new Auth47Error('"signature": invalid, expected base64');
+    }
+}
+
+type BaseProof = {
+    auth47_response: '1.0';
+    challenge: string;
+    signature: string;
+}
+
+type NymProof = BaseProof & {
+    nym: string;
+}
+
+type AddressProof = BaseProof & {
+    address: string;
+}
+
+export type Proof = NymProof | AddressProof;
+
+export function validateProof(proof: unknown): asserts proof is Proof {
+    if (typeof proof !== 'object' || proof === null) {
+        throw new Auth47Error('Invalid proof');
+    }
+
+    if (!('auth47_response' in proof)) {
+        throw new Auth47Error('"auth47_response": missing, expected 1.0');
+    }
+
+    if (proof.auth47_response !== '1.0') {
+        throw new Auth47Error('"auth47_response": invalid, expected 1.0');
+    }
+
+    if (!('challenge' in proof)) {
+        throw new Auth47Error('"challenge": missing');
+    }
+
+    if (!('signature' in proof)) {
+        throw new Auth47Error('"signature": missing');
+    }
+
+    validateChallenge(proof.challenge);
+    validateSignature(proof.signature);
+
+    if (!('nym' in proof) && !('address' in proof)) {
+        throw new Auth47Error('"nym" or "address" missing');
+    }
+
+    if ('nym' in proof) {
+        validateNym(proof.nym);
+    }
+    if ('address' in proof) {
+        validateBitcoinAddress(proof.address);
+    }
+}

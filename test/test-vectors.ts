@@ -80,16 +80,16 @@ export const VALID_AUTH47_CHALLENGES = [
 
 
 export const INVALID_AUTH47_CHALLENGES = [
-    ['', 'invalid challenge: expected a valid URL'], // empty challenge
-    ['auth48://aZrzsdfsfs343432sdf?r=srbn', 'invalid challenge: invalid protocol, expected "auth47"'], // invalid scheme
-    ['auth47://a!rzsdfsfs343432sdf?r=srbn', 'invalid challenge: invalid nonce'], // nonce with invalid character
-    ['auth47://aZrzsdfsfs343432sdf', 'invalid challenge: missing resource'], // missing resource URI
-    ['auth47://aZrzsdfsfs343432sdf?r=ftp://samourai.io', 'invalid challenge: expected a valid HTTP(S) protocol'], // unsupported protocol for resource URI
-    ['auth47://aZrzsdfsfs343432sdf?r=http://samourai.io?arg=notgood', 'invalid challenge: expected empty search param'], // resource URI with a query
-    ['auth47://aZrzsdfsfs343432sdf?r=http://samourai.io/test#hash', 'invalid challenge: expected hash to be empty'], // hash
-    ['auth47://aZrzsdfsfs343432sdf?r=https://samourai.io&e=timestamp', 'invalid challenge: expiry: expected a numeric string'], // invalid expiry param
-    ['auth47://aZrzsdfsfs343432sdf?r=srbn://123aef4567890aef', 'invalid challenge: expected a valid HTTP(S) protocol'],
-    ['auth47://aZrzsdfsfs343432sdf?r=srbns', 'invalid challenge: expected "srbn" or a valid resource URL'],
+    ['', '"challenge": invalid URL'], // empty challenge
+    ['auth48://aZrzsdfsfs343432sdf?r=srbn', '"challenge": invalid protocol'], // invalid scheme
+    ['auth47://a!rzsdfsfs343432sdf?r=srbn', '"challenge": invalid nonce'], // nonce with invalid character
+    ['auth47://aZrzsdfsfs343432sdf', '"challenge": missing resource'], // missing resource URI
+    ['auth47://aZrzsdfsfs343432sdf?r=ftp://samourai.io', '"challenge": invalid resource'], // unsupported protocol for resource URI
+    ['auth47://aZrzsdfsfs343432sdf?r=http://samourai.io?arg=notgood', '"challenge": invalid resource'], // resource URI with a query
+    ['auth47://aZrzsdfsfs343432sdf?r=http://samourai.io/test#hash', '"challenge": invalid hash'], // hash
+    ['auth47://aZrzsdfsfs343432sdf?r=https://samourai.io&e=timestamp', '"challenge": invalid expiry'], // invalid expiry param
+    ['auth47://aZrzsdfsfs343432sdf?r=srbn://123aef4567890aef', '"challenge": invalid resource'],
+    ['auth47://aZrzsdfsfs343432sdf?r=srbns', '"challenge": invalid resource'],
 ];
 
 export const VALID_AUTH47_PROOFS = [
@@ -122,13 +122,13 @@ export const INVALID_AUTH47_PROOFS = [
         'challenge': 'auth47://aerezerzerze23131d?r=srbn',
         'nym': 'PM8TJTLJbPRGxSbc8EJi42Wrr6QbNSaSSVJ5Y3E4pbCYiTHUskHg13935Ubb7q8tx9GVbh2UuRnBc3WSyJHhUrw8KhprKnn9eDznYGieTzFcwQRya4GA',
         'signature': 'Hyn9En/w5I2LHRNE1iuV+r3pFnSdBj9XZHtXuqZjcAjXdh3IsdUR9c5rTnQibGRb6aowfXY21G+Nyct8mbFD86o='
-    }, '"auth47_response": received 2.0, expected 1.0'],
+    }, '"auth47_response": invalid, expected 1.0'],
     [{  // invalid challenge
         'auth47_response': '1.0',
         'challenge': 'auth47://aerezerzerze23131d?c=srbn',
         'nym': 'PM8TJTLJbPRGxSbc8EJi42Wrr6QbNSaSSVJ5Y3E4pbCYiTHUskHg13935Ubb7q8tx9GVbh2UuRnBc3WSyJHhUrw8KhprKnn9eDznYGieTzFcwQRya4GA',
         'signature': 'Hyn9En/w5I2LHRNE1iuV+r3pFnSdBj9XZHtXuqZjcAjXdh3IsdUR9c5rTnQibGRb6aowfXY21G+Nyct8mbFD86o='
-    }, 'invalid challenge: missing resource'],
+    }, '"challenge": missing resource'],
     [{  // wrong payment code
         'auth47_response': '1.0',
         'challenge': 'auth47://aerezerzerze23131d?r=srbn',
@@ -140,5 +140,5 @@ export const INVALID_AUTH47_PROOFS = [
         'challenge': 'auth47://aerezerzerze23131d?r=srbn&e=100000',
         'nym': 'PM8TJTLJbPRGxSbc8EJi42Wrr6QbNSaSSVJ5Y3E4pbCYiTHUskHg13935Ubb7q8tx9GVbh2UuRnBc3WSyJHhUrw8KhprKnn9eDznYGieTzFcwQRya4GA',
         'signature': 'H6EfUR//wweVWEjJvCcKJdQEtVLeZTJKPzurTojyaJsXVNtUS+AqkYmuWcoFavmJ167Ahrpw022pNHJwtI25Lyg='
-    }, 'invalid challenge: expired proof']
+    }, '"challenge": expired proof']
 ];

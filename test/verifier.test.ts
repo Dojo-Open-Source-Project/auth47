@@ -21,8 +21,17 @@ describe('Auth47Verifier', () => {
             }
         });
 
+        it('should throw on invalid bitcoin network', () => {
+            const verifier = new Auth47Verifier(ecc, 'https://test.com/callback');
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            assert.throws(() => (verifier.verifyProof(VALID_AUTH47_PROOFS[0], 'incorrect')));
+
+        });
+
         it('should throw error on invalid callback URI', () => {
-            assert.throws(() => new Auth47Verifier(ecc, 'randomstring'), 'invalid URL');
+            assert.throws(() => new Auth47Verifier(ecc, 'randomstring'), 'Invalid URL');
             assert.throws(() => new Auth47Verifier(ecc, 'ftp://samourai.io'), 'invalid protocol for callback URI');
             assert.throws(() => new Auth47Verifier(ecc, 'http://samourai.io/#hash'), 'hash is forbidden in callback URI');
             assert.throws(() => new Auth47Verifier(ecc, 'https://samourai.io/?arg=test'), 'search params are forbidden in callback URI');
@@ -38,9 +47,7 @@ describe('Auth47Verifier', () => {
         it('should throw error on invalid expiry', () => {
             const verifier = new Auth47Verifier(ecc, 'https://samourai.io/callback');
 
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            assert.throws(() => verifier.generateURI({ nonce: 'skdvbdhsv43653', expires: null}));
+            assert.throws(() => verifier.generateURI({ nonce: 'skdvbdhsv43653', expires: new Date(-1)}));
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
             assert.throws(() => verifier.generateURI({ nonce: 'skdvbdhsv43653', expires: '2364365'}));
@@ -51,7 +58,7 @@ describe('Auth47Verifier', () => {
 
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
-            assert.throws(() => verifier.generateURI({ nonce: 'skdvbdhsv43653', resource: null}));
+            assert.throws(() => verifier.generateURI({ nonce: 'skdvbdhsv43653', resource: Number.NaN}));
             assert.throws(() => verifier.generateURI({ nonce: 'skdvbdhsv43653', resource: ''}));
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
