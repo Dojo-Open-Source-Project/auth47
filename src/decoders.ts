@@ -42,7 +42,9 @@ export function validateGenerateUriArgs(args: GenerateURIArgs): asserts args is 
 
     if (!('nonce' in args)) {
         throw new Auth47Error('"nonce": missing');
-    }    if (!alphanumericRegex.test(args.nonce)) {
+    }
+
+    if (!alphanumericRegex.test(args.nonce)) {
         throw new Auth47Error('"nonce": invalid, expected alphanumeric string');
     }
 
