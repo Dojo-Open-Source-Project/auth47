@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.2.0
+- updated dependencies
+
 ## v1.1.0
 - refactor (removed Effect)
 - updated dependencies
