@@ -43,7 +43,7 @@
   "homepage": "https://github.com/Dojo-Open-Source-Project/auth47",
   "dependencies": {
     "@samouraiwallet/bip47": "^1.1.0",
-    "@samouraiwallet/bitcoinjs-message": "^3.1.0"
+    "@samouraiwallet/bitcoinjs-message": "^3.1.1"
   },
   "devDependencies": {
     "@types/node": "^20.17.57",
