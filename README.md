@@ -1,3 +1,9 @@
+# Archived
+
+This project has been moved to [dojo-tools repository](https://github.com/Dojo-Open-Source-Project/dojo-tools/tree/master/packages/auth47).
+
+---
+
 # @samouraiwallet/auth47
 
 A JS implementation of the Auth47 protocol.
